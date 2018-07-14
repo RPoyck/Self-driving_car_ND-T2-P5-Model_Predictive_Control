@@ -3,6 +3,57 @@ Self-Driving Car Engineer Nanodegree Program
 
 ---
 
+# Discussion on work done
+Rob Poyck
+
+## The model
+The MPC (Model Predictive Controller) consists of the following main steps:
+ * Taking the vehicle state as starting variable
+     * Position, x and y
+     * Orientation, psi
+     * Steering angle
+     * Throttle
+     * Speed (velocity)
+ * Accepting a goal/ideal trajectory from the planner in the form of 2D coordinates of waypoints
+     * ptsx and ptsy
+ * Simulating actuator inputs
+ * Predicting The resulting trajectory based on 
+     * The motion model of the specific vehicle
+     * The length of the trajectory that needs to be predicted (to be compliant to the road ahead and not only the current timestep)
+     * The length of the timesteps between the predicted points on the trajectory (to define the 'resolution' of the trajectory)
+ * Selecting the trajectory with the lowest cost based on:
+     * Precision, i.e. deviation from the desired position and orientation
+     * Constraints, such as:
+         * The physical vehicle model
+         * Maximum actuator values, e.g. maximum steering angle
+     * Minimising actuator usage (to minimise constant correction/oscillation)
+     * Minimising the value gap between sequential actuations (to smoothen the trajectory)
+ * Send the first actuator values of this trajectory to the vehicle (throwing away the rest of the trajectory)
+ * Next iteration starting from the top of this list
+
+## Timestep Length and Elapsed Duration (N & dt)
+The values were optimised to:  
+ * N = 10
+ * dt = 0.1
+ 
+Larger values of N lead to erratic behaviour of the path, where the difficulty in finding a singular trajectory can lead to large jumps and irregularities such as sudden loops in the trajectory.  
+Smaller values of dt lead to longer computational time without significant gain in precision.  
+
+## Polynomial Fitting and MPC Preprocessing
+The information coming from the simulator is pre-processed as follows:
+ * The orientation and velocity after the duration of the latency are estimated using the vehicle motion model equations.
+ * The waypoints coming from the simulator "planner" are processed as follows:
+     * They arrive in the global CS and are converted to the vehicle CS for ease of computation (start position and orrientation are 0)
+     * The x-coordinate is shifted to account for latency depending on vehicle velocity (ignoring the orientation change due to steering angle, which is why the y-shift is assumed to be 0 as seen from the vehicle)
+ * After which a polynomial fit is made on these adjusted waypoints
+ 
+## Model Predictive Control with Latency
+As described in the previous section.
+ 
+ 
+---
+# Original Udacity readme content
+
 ## Dependencies
 
 * cmake >= 3.5
