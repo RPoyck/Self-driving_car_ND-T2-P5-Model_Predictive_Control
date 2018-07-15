@@ -18,7 +18,13 @@ The MPC (Model Predictive Controller) consists of the following main steps:
      * ptsx and ptsy
  * Simulating actuator inputs
  * Predicting The resulting trajectory based on 
-     * The motion model of the specific vehicle
+     * The motion model of the specific vehicle. The equations for the model:
+         * x_[t+1] = x[t] + v[t] * cos(psi[t]) * dt
+         * y_[t+1] = y[t] + v[t] * sin(psi[t]) * dt
+         * psi_[t+1] = psi[t] + v[t] / Lf * delta[t] * dt
+         * v_[t+1] = v[t] + a[t] * dt
+         * cte[t+1] = f(x[t]) - y[t] + v[t] * sin(epsi[t]) * dt
+         * epsi[t+1] = psi[t] - psides[t] + v[t] * delta[t] / Lf * dt
      * The length of the trajectory that needs to be predicted (to be compliant to the road ahead and not only the current timestep)
      * The length of the timesteps between the predicted points on the trajectory (to define the 'resolution' of the trajectory)
  * Selecting the trajectory with the lowest cost based on:
@@ -30,14 +36,16 @@ The MPC (Model Predictive Controller) consists of the following main steps:
      * Minimising the value gap between sequential actuations (to smoothen the trajectory)
  * Send the first actuator values of this trajectory to the vehicle (throwing away the rest of the trajectory)
  * Next iteration starting from the top of this list
+ 
+
 
 ## Timestep Length and Elapsed Duration (N & dt)
 The values were optimised to:  
- * N = 10
- * dt = 0.1
- 
-Larger values of N lead to erratic behaviour of the path, where the difficulty in finding a singular trajectory can lead to large jumps and irregularities such as sudden loops in the trajectory.  
-Smaller values of dt lead to longer computational time without significant gain in precision.  
+ * N = 10 [-]
+ * dt = 0.1 [s]
+This means the planned trajectory / lookahead distance has a length of 10 sections 0.1 seconds, i.e. 1 [s].
+Larger values of N lead to erratic behaviour of the path, where the difficulty in finding a singular trajectory can lead to large jumps and irregularities such as sudden loops in the trajectory because it wants to plan too far in the future. Smaller values of N will mean the lookahead distance is not large enough.  
+Smaller values of dt (and consequently increasing N to maintain the same duration) lead to longer computational time without significant gain in precision.  
 
 ## Polynomial Fitting and MPC Preprocessing
 The information coming from the simulator is pre-processed as follows:
@@ -48,7 +56,11 @@ The information coming from the simulator is pre-processed as follows:
  * After which a polynomial fit is made on these adjusted waypoints
  
 ## Model Predictive Control with Latency
-As described in the previous section.
+As described in the previous section.  
+Implementation of this can be found in:
+ * main.cpp, lines:
+     * 127-129
+     * 145
  
  
 ---
