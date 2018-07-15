@@ -41,8 +41,9 @@ The MPC (Model Predictive Controller) consists of the following main steps:
 
 ## Timestep Length and Elapsed Duration (N & dt)
 The values were optimised to:  
- * N = 10 [-]
- * dt = 0.1 [s]
+ * N = 10 [-]  
+ * dt = 0.1 [s]  
+ 
 This means the planned trajectory / lookahead distance has a length of 10 sections 0.1 seconds, i.e. 1 [s].
 Larger values of N lead to erratic behaviour of the path, where the difficulty in finding a singular trajectory can lead to large jumps and irregularities such as sudden loops in the trajectory because it wants to plan too far in the future. Smaller values of N will mean the lookahead distance is not large enough.  
 Smaller values of dt (and consequently increasing N to maintain the same duration) lead to longer computational time without significant gain in precision.  
